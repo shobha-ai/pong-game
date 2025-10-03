@@ -1,63 +1,151 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Paddle and ball properties
-const paddleHeight = 50, paddleWidth = 5, ballSize = 5;
-let paddle1Y = 75, paddle2Y = 75, ballX = 200, ballY = 100;
-let ballSpeedX = 3, ballSpeedY = 2;
+const player = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    width: 20,
+    height: 20,
+    speed: 4,
+    color: '#fff'
+};
 
-// Touch/mouse event for player paddle
-let touchY = 0;
-canvas.addEventListener('touchmove', (e) => {
-  touchY = e.touches[0].clientY - canvas.getBoundingClientRect().top - paddleHeight / 2;
-});
-canvas.addEventListener('mousemove', (e) => {
-  touchY = e.clientY - canvas.getBoundingClientRect().top - paddleHeight / 2;
-});
+const door = {
+    x: canvas.width - 50,
+    y: canvas.height / 2 - 40,
+    width: 30,
+    height: 80,
+    color: '#8B4513'
+};
 
-// Game loop
-function draw() {
-  // Clear canvas
-  ctx.fillStyle = 'black';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+const table = {
+    x: 100,
+    y: 200,
+    width: 150,
+    height: 80,
+    color: '#A0522D'
+};
 
-  // Update player paddle
-  paddle1Y = touchY;
+const note = {
+    x: 150,
+    y: 225,
+    width: 20,
+    height: 15,
+    color: '#FFFFE0'
+};
 
-  // Draw paddles
-  ctx.fillStyle = 'white';
-  ctx.fillRect(0, paddle1Y, paddleWidth, paddleHeight); // Player
-  ctx.fillRect(canvas.width - paddleWidth, paddle2Y, paddleWidth, paddleHeight); // AI
+const keys = {
+    ArrowUp: false,
+    ArrowDown: false,
+    ArrowLeft: false,
+    ArrowRight: false
+};
 
-  // Draw ball
-  ctx.beginPath();
-  ctx.arc(ballX, ballY, ballSize, 0, Math.PI * 2);
-  ctx.fillStyle = 'white';
-  ctx.fill();
+let doorLocked = true;
+let hasKey = false;
 
-  // Move ball
-  ballX += ballSpeedX;
-  ballY += ballSpeedY;
+function drawObjects() {
+    // Draw door
+    ctx.fillStyle = door.color;
+    ctx.fillRect(door.x, door.y, door.width, door.height);
 
-  // Ball collisions with walls
-  if (ballY < 0 || ballY > canvas.height) ballSpeedY = -ballSpeedY;
+    // Draw table
+    ctx.fillStyle = table.color;
+    ctx.fillRect(table.x, table.y, table.width, table.height);
 
-  // Ball collisions with paddles
-  if (ballX < paddleWidth && ballY > paddle1Y && ballY < paddle1Y + paddleHeight ||
-      ballX > canvas.width - paddleWidth - ballSize && ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
-    ballSpeedX = -ballSpeedX;
-  }
-
-  // Reset ball if out of bounds
-  if (ballX < 0 || ballX > canvas.width) {
-    ballX = 200;
-    ballY = 100;
-  }
-
-  // Simple AI for paddle2
-  paddle2Y += (ballY - (paddle2Y + paddleHeight / 2)) * 0.1;
-
-  requestAnimationFrame(draw);
+    // Draw note
+    ctx.fillStyle = note.color;
+    ctx.fillRect(note.x, note.y, note.width, note.height);
 }
 
-draw();
+function drawPlayer() {
+    ctx.fillStyle = player.color;
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+}
+
+function checkCollision(rect1, rect2) {
+    return (
+        rect1.x < rect2.x + rect2.width &&
+        rect1.x + rect1.width > rect2.x &&
+        rect1.y < rect2.y + rect2.height &&
+        rect1.y + rect1.height > rect2.y
+    );
+}
+
+function updatePlayerPosition() {
+    if (keys.ArrowUp && player.y > 0) {
+        player.y -= player.speed;
+    }
+    if (keys.ArrowDown && player.y < canvas.height - player.height) {
+        player.y += player.speed;
+    }
+    if (keys.ArrowLeft && player.x > 0) {
+        player.x -= player.speed;
+    }
+    if (keys.ArrowRight && player.x < canvas.width - player.width) {
+        player.x += player.speed;
+    }
+}
+
+function gameLoop() {
+    // Clear canvas
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    updatePlayerPosition();
+    drawObjects();
+    drawPlayer();
+
+    requestAnimationFrame(gameLoop);
+}
+
+// Keyboard event listeners
+window.addEventListener('keydown', (e) => {
+    if (e.key in keys) {
+        keys[e.key] = true;
+    }
+    if (e.key === 'e') {
+        interact();
+    }
+});
+
+window.addEventListener('keyup', (e) => {
+    if (e.key in keys) {
+        keys[e.key] = false;
+    }
+});
+
+function interact() {
+    if (checkCollision(player, note)) {
+        showMessage("You found a small, rusty key hidden under the note. It says: 'Freedom lies behind the barrier.'");
+        hasKey = true;
+        // Hide the note after it's read
+        note.x = -100;
+    } else if (checkCollision(player, door)) {
+        if (doorLocked && hasKey) {
+            doorLocked = false;
+            showMessage("The key fits. The lock clicks open.");
+            setTimeout(() => showMessage("To be continued..."), 3000);
+        } else if (doorLocked) {
+            showMessage("The door is locked. A heavy, old lock. No keyhole is visible from this side.");
+        } else {
+            showMessage("You've already unlocked this door.");
+        }
+    } else {
+        hideMessage();
+    }
+}
+
+const messageContainer = document.getElementById('message-container');
+
+function showMessage(text) {
+    messageContainer.textContent = text;
+    messageContainer.style.display = 'block';
+}
+
+function hideMessage() {
+    messageContainer.style.display = 'none';
+}
+
+// Start the game
+gameLoop();

@@ -1,1 +1,3 @@
-# pong-game
+# Shadows of Doubt
+
+A psychological horror game.
