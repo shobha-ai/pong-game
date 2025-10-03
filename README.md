@@ -1,3 +1,3 @@
-# Shadows of Doubt
+# Shadows of Doubt (Native Android Game)
 
-A psychological horror game.
+This project is a 2D psychological horror game being built as a native Android application using Kotlin.
