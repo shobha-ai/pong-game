@@ -1,0 +1,46 @@
+name: Build and Release SpectreAgent
+
+on:
+  push:
+    branches:
+      - main # Or whatever your primary branch is called
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checks out your repository's code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # 2. Installs the Java Development Kit, which Flutter needs
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '11'
+
+    # 3. Installs the Flutter SDK
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+
+    # 4. Gets all the dependencies from pubspec.yaml
+    - name: Get Flutter dependencies
+      run: flutter pub get
+
+    # 5. Builds the actual release APK
+    - name: Build APK
+      run: flutter build apk --release --split-per-abi
+
+    # 6. Creates a new release on your GitHub repo and uploads the APKs
+    - name: Create Release and Upload APK
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: build-${{ github.run_number }}
+        name: SpectreAgent Build ${{ github.run_number }}
+        files: build/app/outputs/flutter-apk/app-*-release.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
