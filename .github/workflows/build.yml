@@ -26,20 +26,25 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         channel: 'stable'
-    
-    # CRITICAL STEP FOR OUR SETUP: Create the platform-specific project files
+
+    # 4. Create the platform-specific project files
     - name: Create project files
       run: flutter create .
 
-    # 4. Gets all the dependencies from pubspec.yaml
+    # 5. Get all the dependencies from pubspec.yaml
     - name: Get Flutter dependencies
       run: flutter pub get
+      
+    # 6. THE ACTUAL FIX: Add namespace to the generated android/app/build.gradle
+    - name: Patch Gradle file for namespace
+      run: |
+        sed -i "/^android {/a \    namespace 'com.example.spectre_agent'" android/app/build.gradle
 
-    # 5. Builds the actual release APK
+    # 7. Builds the actual release APK
     - name: Build Release APK
       run: flutter build apk --release --split-per-abi
 
-    # 6. Creates a new release on your GitHub repo and uploads the APKs
+    # 8. Creates a new release on your GitHub repo and uploads the APKs
     - name: Create Release and Upload APK
       uses: softprops/action-gh-release@v2
       with:
