@@ -35,8 +35,10 @@ jobs:
       run: flutter create .
 
     # 5. Builds the actual release APK
-    - name: Build APK
-      run: flutter build apk --release --split-per-abi --no-sound-null-safety
+    - name: Build APK with correct Java version
+      run: |
+        export JAVA_HOME="$JAVA_HOME_11_X64"
+        flutter build apk --release --split-per-abi
 
     # 6. Creates a new release on your GitHub repo and uploads the APKs
     - name: Create Release and Upload APK
