@@ -34,11 +34,6 @@ jobs:
     # 5. Get all the dependencies from pubspec.yaml
     - name: Get Flutter dependencies
       run: flutter pub get
-      
-    # 6. THE ACTUAL FIX: Add namespace to the generated android/app/build.gradle
-    - name: Patch Gradle file for namespace
-      run: |
-        sed -i "/^android {/a \    namespace 'com.example.spectre_agent'" android/app/build.gradle
 
     # 7. Builds the actual release APK
     - name: Build Release APK
