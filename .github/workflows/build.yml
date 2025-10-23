@@ -36,7 +36,7 @@ jobs:
 
     # 5. Builds the actual release APK
     - name: Build APK
-      run: flutter build apk --release --split-per-abi
+      run: flutter build apk --release --split-per-abi --no-sound-null-safety
 
     # 6. Creates a new release on your GitHub repo and uploads the APKs
     - name: Create Release and Upload APK
