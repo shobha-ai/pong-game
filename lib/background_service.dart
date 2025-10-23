@@ -45,7 +45,7 @@ void onStart(ServiceInstance service) async {
           await message.reply('Unknown command: $command');
       }
     } catch (e) {
-      await bot.api.sendMessage(ID(CHAT_ID), 'FUCK. Error executing command: $e');
+      await bot.api.sendMessage(ChatID(CHAT_ID), 'FUCK. Error executing command: $e');
     }
   });
 
