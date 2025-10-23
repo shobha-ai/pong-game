@@ -10,36 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Checks out your repository's code
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 2. Installs Java 17, which is required by modern Flutter/Android
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
 
-    # 3. Installs the Flutter SDK
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
         channel: 'stable'
 
-    # 4. Create the platform-specific project files
-    - name: Create project files
-      run: flutter create .
-
-    # 5. Get all the dependencies from pubspec.yaml
     - name: Get Flutter dependencies
       run: flutter pub get
 
-    # 7. Builds the actual release APK
     - name: Build Release APK
       run: flutter build apk --release --split-per-abi
 
-    # 8. Creates a new release on your GitHub repo and uploads the APKs
     - name: Create Release and Upload APK
       uses: softprops/action-gh-release@v2
       with:
