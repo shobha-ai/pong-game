@@ -31,6 +31,9 @@ jobs:
     - name: Get Flutter dependencies
       run: flutter pub get
 
+    - name: Create platform-specific files
+      run: flutter create .
+
     # 5. Builds the actual release APK
     - name: Build APK
       run: flutter build apk --release --split-per-abi
