@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<full-backup-content>
-    <!-- Remove the following file path attributes to make them safe for a larger variety of projects -->
-    <!-- <include domain="file" path="."/>
-    <include domain="database" path="."/>
-    <include domain="sharedpref" path="."/>
-    <include domain="external" path="."/>
-    <include domain="root" path="."/> -->
-</full-backup-content>
